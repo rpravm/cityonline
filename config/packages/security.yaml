@@ -1,0 +1,42 @@
+security:
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+#        in_memory:
+#            memory:
+#                users:
+#                    user1:
+#                        password: 1111
+#                        roles: 'ROLE_USER'
+#                    admin:
+#                        password: 1234
+#                        roles: 'ROLE_ADMIN'
+        cityonline:
+            id: App\Security\User\CityonlineUserProvider
+
+    encoders:
+        Symfony\Component\Security\Core\User\User: plaintext
+        App\Security\User\CityonlineUser: plaintext
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            anonymous: ~
+            guard:
+                authenticators:
+                    - App\Security\SessionAuthenticator
+
+            stateless: true
+
+            # activate different ways to authenticate
+
+            # http_basic: ~
+            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
+
+            # form_login: ~
+            # https://symfony.com/doc/current/security/form_login_setup.html
+
+    access_control:
+        # require ROLE_ADMIN for /admin*
+        - { path: ^/admin, roles: ROLE_ADMIN }

@@ -1,0 +1,15 @@
+{# templates/cityonline/camlist.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<h1>City: {{ city }}</h1>
+
+<ul>
+    {% for cam in cams %}
+        <li>{{ cam.description }}</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
