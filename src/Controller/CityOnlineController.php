@@ -83,6 +83,17 @@ class CityOnlineController extends Controller
 
     /**
      * @Route(
+     *  "/",
+     *  name="homepage",
+     * )
+     */
+    public function home()
+    {
+        return new Response('cityonline');
+    }
+
+    /**
+     * @Route(
      *  "/{city}/roads",
      *  name="roadsList",
      *  requirements={"city": "mgn|krd|sib"}
