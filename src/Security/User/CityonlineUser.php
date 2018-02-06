@@ -10,28 +10,22 @@ class CityonlineUser implements UserInterface
 
     private $username;
     private $password;
-    private $session;
-    private $cnum;
+    private $session_data;
 
-    public function __construct($username, $password, $session, $cnum)
+    public function __construct($username, $password, $session_data)
     {
         $this->username = $username;
         $this->password = $password;
-        $this->session = $session;
-        $this->cnum = $cnum;
+        $this->session_data = $session_data;
     }
 
     public function getUsername()
     {
         return $this->username;
     }
-    public function getSession()
+    public function getSessionData()
     {
-        return $this->session;
-    }
-    public function getCnum()
-    {
-        return $this->cnum;
+        return $this->session_data;
     }
 
     public function getRoles()

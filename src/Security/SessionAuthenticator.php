@@ -39,8 +39,6 @@ class SessionAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request)
     {
-        $this->logger->info('getCredentials(): ');
-
         return(json_decode($request->getContent(), true));
     }
 
@@ -52,7 +50,6 @@ class SessionAuthenticator extends AbstractGuardAuthenticator
             return;
         }
 
-        $this->logger->info('getUser(): ' . $session);
         return $userProvider->loadUserBySession($session);
     }
 

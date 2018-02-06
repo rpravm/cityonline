@@ -45,7 +45,7 @@ class CityonlineUserProvider implements UserProviderInterface
         ]);
 
         if ($session_data) {
-            return new CityonlineUser($session_data['login'], $session_data['password'], $session, $session_data['cnum']);
+            return new CityonlineUser($session_data['login'], $session_data['password'], $session_data);
         }
 
         throw new UsernameNotFoundException(

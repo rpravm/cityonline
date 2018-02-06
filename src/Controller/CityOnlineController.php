@@ -129,17 +129,21 @@ class CityOnlineController extends Controller
     {
         $this->denyAccessUnlessGranted('ROLE_USER', null, 'Unable to access this page!');
 
-        if($this->getUser()->getCnum() == 'demo') {
-            $cams_res = $this->conn->fetchAll('SELECT * FROM freedom_cityonline.cams WHERE demo');
+        $session_data = $this->getUser()->getSessionData();
+
+        if($session_data['cnum'] == 'demo') {
+            $cams_res = $this->conn->fetchAll('SELECT * FROM freedom_cityonline.cams WHERE demo AND city=:city', ['city' => $session_data['city']]);
         } else {
             // ДОРОГИ
             if($roads) {
-                $cams_res = $this->conn->fetchAll('SELECT * FROM freedom_cityonline.cams WHERE type=\'road\' AND city=:city', ['city' => $this->session['city']]);
+                $cams_res = $this->conn->fetchAll('SELECT * FROM freedom_cityonline.cams WHERE type=\'road\' AND user_city=:user_city', ['city' => $session_data['city'], 'user_city' => $session_data['user_city']]);
             // ТВОЙ ДВОР
             } else {
-                $cams_res = $this->conn->fetchAll('SELECT * FROM freedom_cityonline.cams WHERE type=\'private\' AND INSTR (contracts, :cnum)' , ['cnum' => $this->session['cnum']]);
+                $cams_res = $this->conn->fetchAll('SELECT * FROM freedom_cityonline.cams WHERE type=\'private\' AND INSTR (contracts, :cnum)' , ['cnum' => $session_data['cnum']]);
             }
         }
+
+        $cams = [];
 
         foreach($cams_res as $cam) {
             $sources = [];
