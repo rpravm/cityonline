@@ -83,13 +83,25 @@ class CityOnlineController extends Controller
 
     /**
      * @Route(
-     *  "/",
+     *  "/{city}/",
      *  name="homepage",
+     *  requirements={"city": "mgn|krd|sib"}
      * )
      */
-    public function home()
+    public function home($city)
     {
-        return new Response('cityonline');
+        return $this->json($this->defaults);
+    }
+
+    /**
+     * @Route(
+     *  "/",
+     *  defaults={"city": "krd"}
+     * )
+     */
+    public function home1($city)
+    {
+        return $this->json($this->defaults);
     }
 
     /**
@@ -172,6 +184,7 @@ class CityOnlineController extends Controller
      *  name="accountDetails",
      *  requirements={"city": "mgn|krd|sib"}
      * )
+     * @Route( "/account_details", defaults={"city": "krd"} )
      */
     public function account_details($city)
     {
@@ -204,6 +217,7 @@ class CityOnlineController extends Controller
      *  defaults={"city": "krd"},
      *  requirements={"city": "mgn|krd|sib"}
      * )
+     * @Route( "/login", defaults={"city": "krd"} )
      */
     public function login(Request $request, $city)
     {
@@ -226,15 +240,16 @@ class CityOnlineController extends Controller
             if($contract_ws['error']) {
                 return $this->json(['error' => '1C error: ' . $contract_ws['error']]);
             }
-        }
 
-        $contract = $contract_ws['result'];
+            $contract = $contract_ws['result'];
 
-        foreach($contract['logins'] as $login) {
-            if($login['login'] == $req_data['login'] && $login['password'] == $req_data['password']) {
-                $password_ok = true;
+            foreach($contract['logins'] as $login) {
+                if($login['login'] == $req_data['login'] && $login['password'] == $req_data['password']) {
+                    $password_ok = true;
+                }
             }
         }
+
 
         if(!$password_ok) {
             return $this->json(['error' => 'wrong password']);
@@ -270,6 +285,7 @@ class CityOnlineController extends Controller
      *  "/{city}/config",
      *  requirements={"city": "mgn|krd|sib"}
      * )
+     * @Route( "/config", defaults={"city": "krd"} )
      */
     public function config($city)
     {
