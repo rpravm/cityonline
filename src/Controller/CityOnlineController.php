@@ -16,8 +16,6 @@ use App\Freedom\WS1C;
 
 class CityOnlineController extends Controller
 {
-
-//    private $session;
     private $conn;
     private $logger;
     private $ws1c;
@@ -74,7 +72,6 @@ class CityOnlineController extends Controller
 
     public function __construct(Connection $conn, LoggerInterface $logger, WS1C $ws1c)
     {
-//        $this->session = $session;
         $this->conn = $conn;
         $this->logger = $logger;
         $this->ws1c = $ws1c;
@@ -103,6 +100,48 @@ class CityOnlineController extends Controller
     {
         return $this->json($this->defaults);
     }
+
+    /**
+     * @Route(
+     *  "/{city}/dvr_map",
+     *  name="dvrMap",
+     *  requirements={"city": "mgn|krd|sib"}
+     * )
+     * @Route( "/dvr_map", defaults={"city": "krd"} )
+     */
+    public function dvr_map($city)
+    {
+        $segments = [];
+        for($i = 0; $i < 1440; $i++) {
+            $segments[] = $i;
+        }
+
+        return $this->json(['segments' => $segments]);
+    }
+
+
+    /**
+     * @Route(
+     *  "/{city}/open_door",
+     *  name="openDoor",
+     *  requirements={"city": "mgn|krd|sib"}
+     * )
+     * @Route( "/open_door", defaults={"city": "krd"} )
+     */
+    public function open_door($city)
+    {
+        $session_data = $this->getUser()->getSessionData();
+        $this->logger->debug('openDoor()');
+        $this->logger->debug(var_export($session_data, 1));
+
+        file_get_contents("http://93.170.73.1:2280/pwr/relays/8?ac=123456&value=1");
+        sleep(3);
+        file_get_contents("http://93.170.73.1:2280/pwr/relays/8?ac=123456&value=0");
+
+        return $this->json([]);
+    }
+
+
 
     /**
      * @Route(
@@ -146,6 +185,7 @@ class CityOnlineController extends Controller
         $cams = [];
 
         foreach($cams_res as $cam) {
+            $cam_arr = [];
             $sources = [];
             if($cam['source-sd']) {
                 $s['name'] = $cam['source-sd'];
@@ -168,7 +208,12 @@ class CityOnlineController extends Controller
             $cam_arr['host'] = $cam['host'];
 
             if($roads) {
-                $cam_arr['district'] = $cam['city'];
+                $cam_arr['district'] = $cam['user_city'];
+            }
+
+            if($cam['dvr']) {
+                $cam_arr['dvr'] = 1;
+                $cam_arr['dvrURLFormat'] = 'https://' . $cam['host'] . '/' . $cam['name'] . '/timeshift_abs-%d.m3u8';
             }
 
             $cams[] = $cam_arr;
@@ -295,21 +340,24 @@ class CityOnlineController extends Controller
     {
         $this->denyAccessUnlessGranted('ROLE_USER', null, 'Unable to access this page!');
 
+        $session_data = $this->getUser()->getSessionData();
+
         foreach($this->urls as $url) {
-            dump($url);
+//            if($url == 'openDoor' && $session_data['city'] != 'sib') {
+//                continue;
+//            }
             try {
                 $ret['urls'][$url] = $this->generateUrl($url, ['city' => $city], UrlGeneratorInterface::ABSOLUTE_URL);
             } catch(RouteNotFoundException $e) {
             }
+
         }
 
         $ret['connectionRequest'] = $this->connectionRequest;
         $ret['isp'] = $this->isp;
         $ret['interface'] = $this->interface;
 
-        dump($this->getUser());
-
-        if($this->getUser()->getCnum() == 'demo') {
+        if($this->getUser()->getSessionData()['cnum'] == 'demo') {
             $ret['interface']['hideAccountDetails'] = true;
         }
 
